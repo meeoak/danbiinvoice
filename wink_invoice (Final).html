@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" xml:lang="id">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -34,6 +34,9 @@
   .btn-pdf:hover{background:#c44a20;}
   .form-section{display:none;}
   .form-section.active{display:block;}
+  .date-wrap{position:relative;}
+  .date-wrap::after{content:"📅";position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:12px;pointer-events:none;opacity:0.45;}
+  .date-wrap input{padding-right:28px !important;}
 
   /* Invoice preview */
   .inv-wrap{background:#f8f8f8;border-radius:10px;padding:10px;}
@@ -130,16 +133,27 @@
     <div class="row2">
       <div class="field">
         <label>Tanggal Invoice</label>
-        <input type="date" id="f-date" value="2025-07-31">
+        <div class="date-wrap"><input type="text" lang="id" placeholder="YYYY-MM-DD" maxlength="10" inputmode="numeric" id="f-date" value=""></div>
       </div>
       <div class="field">
         <label>Nama Produk / Paket</label>
         <input type="text" id="f-product" value="WINK Premium">
       </div>
     </div>
-    <div class="field">
-      <label>Batas Waktu Pembayaran (Harap bayar maksimal)</label>
-      <input type="date" id="f-deadline" value="">
+    <div class="row2">
+      <div class="field">
+        <label>Nomor Invoice</label>
+        <div style="display:flex;gap:5px;align-items:center;">
+          <input type="text" id="f-invoice-no" placeholder="INV/2025/07/001" value="" style="flex:1;">
+          <button onclick="autoInvoiceNo()" title="Auto-generate invoice number" style="padding:6px 9px;background:#e05a2b;color:#fff;border:none;border-radius:7px;font-size:0.72rem;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;">⚡ Auto</button>
+        </div>
+        <div id="inv-no-hint" style="font-size:0.67rem;color:#bbb;margin-top:3px;">Klik ⚡ Auto untuk nomor otomatis, atau isi manual</div>
+      </div>
+      <div class="field">
+        <label>Batas Waktu Pembayaran (Harap bayar maksimal)</label>
+        <div class="date-wrap"><input type="text" lang="id" placeholder="YYYY-MM-DD" maxlength="10" inputmode="numeric" id="f-deadline" value=""></div>
+      </div>
+    </div>
     </div>
 
     <input type="hidden" id="f-signer" value="Joko Kim">
@@ -156,7 +170,7 @@
         </div>
         <div class="field">
           <label>Tanggal Mulai</label>
-          <input type="date" id="c-start" value="2025-07-31">
+          <div class="date-wrap"><input type="text" lang="id" placeholder="YYYY-MM-DD" maxlength="10" inputmode="numeric" id="c-start" value=""></div>
         </div>
       </div>
       <hr class="divider">
@@ -173,7 +187,7 @@
       </div>
       <div class="field">
         <label>Tanggal Berakhir</label>
-        <input type="date" id="c-end" value="2026-07-31">
+        <div class="date-wrap"><input type="text" lang="id" placeholder="YYYY-MM-DD" maxlength="10" inputmode="numeric" id="c-end" value=""></div>
       </div>
     </div>
 
@@ -188,7 +202,7 @@
         </div>
         <div class="field">
           <label>Tanggal DP</label>
-          <input type="date" id="d-dp-date" value="2025-07-31">
+          <div class="date-wrap"><input type="text" lang="id" placeholder="YYYY-MM-DD" maxlength="10" inputmode="numeric" id="d-dp-date" value=""></div>
         </div>
       </div>
       <hr class="divider">
@@ -200,7 +214,7 @@
         </div>
         <div class="field">
           <label>Tanggal Pelunasan</label>
-          <input type="date" id="d-rem-date" value="2025-08-15">
+          <div class="date-wrap"><input type="text" lang="id" placeholder="YYYY-MM-DD" maxlength="10" inputmode="numeric" id="d-rem-date" value=""></div>
         </div>
       </div>
       <hr class="divider">
@@ -222,7 +236,7 @@
         </div>
         <div class="field">
           <label>Tanggal Berakhir</label>
-          <input type="date" id="d-end" value="2026-07-31">
+          <div class="date-wrap"><input type="text" lang="id" placeholder="YYYY-MM-DD" maxlength="10" inputmode="numeric" id="d-end" value=""></div>
         </div>
       </div>
     </div>
@@ -233,19 +247,19 @@
       <p class="section-label">① DP (Down Payment) - Bulan ke-1</p>
       <div class="row2">
         <div class="field"><label>Jumlah DP (Rp)</label><input type="number" id="dl-dp" value="400000"></div>
-        <div class="field"><label>Tanggal DP</label><input type="date" id="dl-dp-date" value="2025-07-31"></div>
+        <div class="field"><label>Tanggal DP</label><div class="date-wrap"><input type="text" lang="id" placeholder="YYYY-MM-DD" maxlength="10" inputmode="numeric" id="dl-dp-date" value=""></div></div>
       </div>
       <hr class="divider">
       <p class="section-label">② Pelunasan Sisa Sekaligus (Lump Sum)</p>
       <div class="row2">
         <div class="field"><label>Jumlah Sisa yang Dilunasi (Rp)</label><input type="number" id="dl-lump" value="5100000"></div>
-        <div class="field"><label>Tanggal Pelunasan</label><input type="date" id="dl-lump-date" value="2025-08-15"></div>
+        <div class="field"><label>Tanggal Pelunasan</label><div class="date-wrap"><input type="text" lang="id" placeholder="YYYY-MM-DD" maxlength="10" inputmode="numeric" id="dl-lump-date" value=""></div></div>
       </div>
       <hr class="divider">
       <p class="section-label">Info Kontrak</p>
       <div class="row2">
         <div class="field"><label>Total Durasi (Bulan)</label><input type="number" id="dl-months" value="12" min="1"></div>
-        <div class="field"><label>Tanggal Berakhir</label><input type="date" id="dl-end" value="2026-07-31"></div>
+        <div class="field"><label>Tanggal Berakhir</label><div class="date-wrap"><input type="text" lang="id" placeholder="YYYY-MM-DD" maxlength="10" inputmode="numeric" id="dl-end" value=""></div></div>
       </div>
     </div>
 
@@ -260,7 +274,7 @@
       <div class="row2">
         <div class="field">
           <label>Tanggal Pembayaran</label>
-          <input type="date" id="fp-date" value="2025-07-31">
+          <div class="date-wrap"><input type="text" lang="id" placeholder="YYYY-MM-DD" maxlength="10" inputmode="numeric" id="fp-date" value=""></div>
         </div>
         <div class="field">
           <label>Durasi Layanan (Bulan)</label>
@@ -270,11 +284,11 @@
       <div class="row2">
         <div class="field">
           <label>Tanggal Mulai Layanan</label>
-          <input type="date" id="fp-start" value="2025-08-01">
+          <div class="date-wrap"><input type="text" lang="id" placeholder="YYYY-MM-DD" maxlength="10" inputmode="numeric" id="fp-start" value=""></div>
         </div>
         <div class="field">
           <label>Tanggal Berakhir</label>
-          <input type="date" id="fp-end" value="2026-07-31">
+          <div class="date-wrap"><input type="text" lang="id" placeholder="YYYY-MM-DD" maxlength="10" inputmode="numeric" id="fp-end" value=""></div>
         </div>
       </div>
     </div>
@@ -319,6 +333,10 @@
         <div style="text-align:right;">
           <div class="meta-label">Perihal</div>
           <div class="meta-value">Keterangan Pembayaran</div>
+          <div id="p-invoice-no-wrap" style="margin-top:4px;display:none;">
+            <div class="meta-label">No. Invoice</div>
+            <div class="meta-value" id="p-invoice-no" style="font-size:9px;color:#333;"></div>
+          </div>
         </div>
       </div>
       <div style="margin-bottom:8px; display:grid; grid-template-columns:1fr 1fr; gap:8px;">
@@ -350,8 +368,13 @@
         <tbody id="p-table-body"></tbody>
       </table>
 
+      <!-- 납부기한 독립 박스 -->
+      <div id="p-deadline-box" style="display:none;margin:8px 0;background:#fff3f0;border:1.5px solid #e05a2b;border-radius:5px;padding:7px 10px;">
+        <div style="font-size:7px;font-weight:700;color:#e05a2b;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:2px;">Batas Waktu Pembayaran</div>
+        <div id="p-deadline-text" style="font-size:10px;font-weight:700;color:#c0392b;"></div>
+      </div>
+
       <div class="pay-methods" id="p-note">
-        <div id="p-deadline-line" style="display:none;font-size:8.5px;font-weight:700;color:#e05a2b;margin-bottom:7px;padding-bottom:6px;border-bottom:0.5px solid #f0c9b8;" id="p-deadline-line"></div>
         <div style="font-size:7.5px;font-weight:600;color:#555;margin-bottom:5px;">Metode Pembayaran</div>
         <div style="font-size:8px;color:#444;line-height:1.7;">
           <strong>1. Pembayaran Melalui Rekening Bank</strong><br>
@@ -457,7 +480,7 @@ function updatePreview() {
 
     set('p-body', '');
     document.getElementById('p-body').innerHTML =
-      `Pada <strong>${fmtDate(date)}</strong>, Bapak/Ibu <strong>${name}</strong> telah menyetujui Kontrak Langganan paket <strong>${product}</strong> dengan membayarkan cicilan pertama sebesar <strong>${fmtRp(first)}</strong>. Cicilan bulanan <strong>${fmtRp(monthly)}</strong>/bulan dibayarkan secara rutin sampai bulan ke-<strong>${months}</strong>, berakhir pada <strong>${fmtDate(end)}</strong>.`;
+      `Pada <strong>${fmtDate(date)}</strong>, Bapak/Ibu <strong>${name}</strong> telah berlangganan paket <strong>${product}</strong> dengan membayarkan cicilan pertama sebesar <strong>${fmtRp(first)}</strong>. Cicilan bulanan <strong>${fmtRp(monthly)}</strong>/bulan dibayarkan secara rutin sampai bulan ke-<strong>${months}</strong>, berakhir pada <strong>${fmtDate(end)}</strong>.`;
 
     document.getElementById('p-summary-boxes').innerHTML = `
       <div class="sbox"><div class="sbox-label">Cicilan Pertama</div><div class="sbox-value">${fmtRp(first)}</div></div>
@@ -485,7 +508,7 @@ function updatePreview() {
     badge.textContent = 'DP + Cicilan';
 
     document.getElementById('p-body').innerHTML =
-      `Pada <strong>${fmtDate(date)}</strong>, Bapak/Ibu <strong>${name}</strong> telah menyetujui Kontrak Langganan paket <strong>${product}</strong> dengan membayarkan DP <strong>${fmtRp(dp)}</strong> pada ${fmtDate(dpDate)}, pelunasan sisa <strong>${fmtRp(rem)}</strong> pada ${fmtDate(remDate)}, serta cicilan <strong>${fmtRp(monthly)}</strong>/bulan mulai bulan ke-${startM} hingga berakhir pada <strong>${fmtDate(end)}</strong>.`;
+      `Pada <strong>${fmtDate(date)}</strong>, Bapak/Ibu <strong>${name}</strong> telah berlangganan paket <strong>${product}</strong> dengan membayarkan DP <strong>${fmtRp(dp)}</strong> pada ${fmtDate(dpDate)}, pelunasan sisa <strong>${fmtRp(rem)}</strong> pada ${fmtDate(remDate)}, serta cicilan <strong>${fmtRp(monthly)}</strong>/bulan mulai bulan ke-${startM} hingga berakhir pada <strong>${fmtDate(end)}</strong>.`;
 
     document.getElementById('p-summary-boxes').innerHTML = `
       <div class="sbox"><div class="sbox-label">DP Bulan ke-1</div><div class="sbox-value">${fmtRp(dp)}</div></div>
@@ -516,7 +539,7 @@ function updatePreview() {
     badge.textContent = 'DP + Lunas';
 
     document.getElementById('p-body').innerHTML =
-      `Pada <strong>${fmtDate(date)}</strong>, Bapak/Ibu <strong>${name}</strong> telah menyetujui Kontrak Langganan paket <strong>${product}</strong>. DP sebesar <strong>${fmtRp(dp)}</strong> dibayarkan pada ${fmtDate(dpDate)}, kemudian sisa kontrak dilunasi sekaligus sebesar <strong>${fmtRp(lump)}</strong> pada ${fmtDate(lumpDate)}. Total pembayaran <strong>${fmtRp(net)}</strong>${discount > 0 ? ` (termasuk diskon ${fmtRp(discount)})` : ''}. Layanan berakhir pada <strong>${fmtDate(end)}</strong>.`;
+      `Pada <strong>${fmtDate(date)}</strong>, Bapak/Ibu <strong>${name}</strong> telah berlangganan paket <strong>${product}</strong>. DP sebesar <strong>${fmtRp(dp)}</strong> dibayarkan pada ${fmtDate(dpDate)}, kemudian sisa kontrak dilunasi sekaligus sebesar <strong>${fmtRp(lump)}</strong> pada ${fmtDate(lumpDate)}. Total pembayaran <strong>${fmtRp(net)}</strong>${discount > 0 ? ` (termasuk diskon ${fmtRp(discount)})` : ''}. Layanan berakhir pada <strong>${fmtDate(end)}</strong>.`;
 
     document.getElementById('p-summary-boxes').innerHTML =
       `<div class="sbox"><div class="sbox-label">DP Bulan ke-1</div><div class="sbox-value">${fmtRp(dp)}</div></div>` +
@@ -575,16 +598,31 @@ function updatePreview() {
     }
   }
 
+  // ── 인보이스 번호 업데이트
+  const invoiceNo = document.getElementById('f-invoice-no').value || '';
+  const invoiceNoWrap = document.getElementById('p-invoice-no-wrap');
+  const invoiceNoEl   = document.getElementById('p-invoice-no');
+  if (invoiceNoWrap && invoiceNoEl) {
+    if (invoiceNo) {
+      invoiceNoWrap.style.display = 'block';
+      invoiceNoEl.textContent = invoiceNo;
+    } else {
+      invoiceNoWrap.style.display = 'none';
+      invoiceNoEl.textContent = '';
+    }
+  }
+
   // ── 결제 기한 업데이트
   const deadline = document.getElementById('f-deadline').value;
-  const deadlineLineEl = document.getElementById('p-deadline-line');
-  if (deadlineLineEl) {
+  const deadlineBox  = document.getElementById('p-deadline-box');
+  const deadlineText = document.getElementById('p-deadline-text');
+  if (deadlineBox && deadlineText) {
     if (deadline) {
-      deadlineLineEl.style.display = 'block';
-      deadlineLineEl.textContent = 'Harap melakukan pembayaran maksimal ' + fmtDate(deadline);
+      deadlineBox.style.display = 'block';
+      deadlineText.textContent = 'Harap melakukan pembayaran maksimal ' + fmtDate(deadline);
     } else {
-      deadlineLineEl.style.display = 'none';
-      deadlineLineEl.textContent = '';
+      deadlineBox.style.display = 'none';
+      deadlineText.textContent = '';
     }
   }
 
@@ -635,6 +673,13 @@ function drawInvoiceHeader(doc, name, date, product, W, M, TW, badgeText) {
   doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(17,17,17);
   doc.text(name, M, 50);
   doc.text('Keterangan Pembayaran', W-M, 50, {align:'right'});
+  const invoiceNoPDF = document.getElementById('f-invoice-no').value || '';
+  if (invoiceNoPDF) {
+    doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(170,170,170);
+    doc.text('NO. INVOICE', W-M, 55, {align:'right'});
+    doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(17,17,17);
+    doc.text(invoiceNoPDF, W-M, 59.5, {align:'right'});
+  }
   doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(170,170,170);
   doc.text('NAMA PRODUK / PAKET', M, 55);
   doc.setFont('helvetica','bold'); doc.setFontSize(9.5); doc.setTextColor(17,17,17);
@@ -735,7 +780,7 @@ function generatePDF() {
     const months = parseInt(document.getElementById('c-months').value)||12;
     const end    = document.getElementById('c-end').value;
 
-    bodyText = `Pada ${fmtDate(date)}, Bapak/Ibu ${name} telah menyetujui Kontrak Langganan paket ${product} dengan membayarkan cicilan pertama sebesar ${fmtRpPDF(first)}. Cicilan bulanan ${fmtRpPDF(monthly)}/bulan dibayarkan secara rutin sampai bulan ke-${months}, berakhir pada ${fmtDate(end)}.`;
+    bodyText = `Pada ${fmtDate(date)}, Bapak/Ibu ${name} telah berlangganan paket ${product} dengan membayarkan cicilan pertama sebesar ${fmtRpPDF(first)}. Cicilan bulanan ${fmtRpPDF(monthly)}/bulan dibayarkan secara rutin sampai bulan ke-${months}, berakhir pada ${fmtDate(end)}.`;
     boxes = [
       {label:'CICILAN PERTAMA', val:fmtRpPDF(first), bg:[255,248,243], accent:[224,90,43]},
       {label:'CICILAN BULANAN', val:fmtRpPDF(monthly), bg:[245,245,245], accent:[140,140,140]},
@@ -758,7 +803,7 @@ function generatePDF() {
     const end    = document.getElementById('d-end').value;
     const sub    = dp+rem;
 
-    bodyText = `Pada ${fmtDate(date)}, Bapak/Ibu ${name} telah menyetujui Kontrak Langganan paket ${product} dengan membayarkan DP ${fmtRpPDF(dp)} pada ${fmtDate(dpDate)}, pelunasan sisa ${fmtRpPDF(rem)} pada ${fmtDate(remDate)}, serta cicilan ${fmtRpPDF(monthly)}/bulan mulai bulan ke-${startM} hingga berakhir pada ${fmtDate(end)}.`;
+    bodyText = `Pada ${fmtDate(date)}, Bapak/Ibu ${name} telah berlangganan paket ${product} dengan membayarkan DP ${fmtRpPDF(dp)} pada ${fmtDate(dpDate)}, pelunasan sisa ${fmtRpPDF(rem)} pada ${fmtDate(remDate)}, serta cicilan ${fmtRpPDF(monthly)}/bulan mulai bulan ke-${startM} hingga berakhir pada ${fmtDate(end)}.`;
     boxes = [
       {label:'DP BULAN KE-1', val:fmtRpPDF(dp), bg:[255,248,243], accent:[224,90,43]},
       {label:'PELUNASAN SISA', val:fmtRpPDF(rem), bg:[243,255,246], accent:[39,160,71]},
@@ -784,7 +829,7 @@ function generatePDF() {
     const total    = dp + lump;
     const net      = total - discount;
 
-    bodyText = `Pada ${fmtDate(date)}, Bapak/Ibu ${name} telah menyetujui Kontrak Langganan paket ${product}. DP sebesar ${fmtRpPDF(dp)} dibayarkan pada ${fmtDate(dpDate)}, kemudian sisa kontrak dilunasi sekaligus sebesar ${fmtRpPDF(lump)} pada ${fmtDate(lumpDate)}. Total pembayaran ${fmtRpPDF(net)}${discount > 0 ? ` (termasuk diskon ${fmtRpPDF(discount)})` : ''}. Layanan berakhir pada ${fmtDate(end)}.`;
+    bodyText = `Pada ${fmtDate(date)}, Bapak/Ibu ${name} telah berlangganan paket ${product}. DP sebesar ${fmtRpPDF(dp)} dibayarkan pada ${fmtDate(dpDate)}, kemudian sisa kontrak dilunasi sekaligus sebesar ${fmtRpPDF(lump)} pada ${fmtDate(lumpDate)}. Total pembayaran ${fmtRpPDF(net)}${discount > 0 ? ` (termasuk diskon ${fmtRpPDF(discount)})` : ''}. Layanan berakhir pada ${fmtDate(end)}.`;
 
     boxes = [
       {label:'DP BULAN KE-1',      val:fmtRpPDF(dp),   bg:[255,248,243], accent:[224,90,43]},
@@ -897,8 +942,30 @@ function generatePDF() {
   doc.save(`WINK_Invoice_${typeLabel}_${name.replace(/\s+/g,'_')}_${date}.pdf`);
 }
 
+// ── 자동 인보이스 번호 생성 ──────────────────────────────────────
+let invSeq = 0;
+
+function autoInvoiceNo() {
+  invSeq += 1;
+
+  const dateVal = document.getElementById('f-date').value || new Date().toISOString().slice(0,10);
+  const d = new Date(dateVal + 'T00:00:00');
+  const yyyy = d.getFullYear();
+  const mm   = String(d.getMonth() + 1).padStart(2, '0');
+  const seqStr = String(invSeq).padStart(3, '0');
+  const invoiceNo = `INV/${yyyy}/${mm}/${seqStr}`;
+
+  const el = document.getElementById('f-invoice-no');
+  el.value = invoiceNo;
+
+  const hint = document.getElementById('inv-no-hint');
+  if (hint) hint.textContent = `이번 세션 ${invSeq}번째 인보이스 · 수동으로 수정 가능`;
+
+  updatePreview();
+}
+
 // Event listeners - all fields
-const allFields = ['f-name','f-child','f-date','f-deadline','f-product','f-signer','f-position',
+const allFields = ['f-name','f-child','f-date','f-deadline','f-invoice-no','f-product','f-signer','f-position',
   'c-first','c-start','c-monthly','c-months','c-end',
   'd-dp','d-dp-date','d-rem','d-rem-date','d-monthly','d-startm','d-months','d-end',
   'dl-dp','dl-dp-date','dl-lump','dl-lump-date','dl-months','dl-end','fp-total','fp-date','fp-months','fp-start','fp-end'];
@@ -907,6 +974,51 @@ allFields.forEach(id => {
   if (el) el.addEventListener('input', updatePreview);
 });
 
+// ── 날짜 텍스트 입력 자동 포맷팅 (YYYY-MM-DD) ──────────────────
+function setupDateInputs() {
+  document.querySelectorAll('input[lang="id"]').forEach(el => {
+    el.addEventListener('input', function(e) {
+      let v = this.value.replace(/\D/g, '').slice(0, 8);
+      if (v.length > 4) v = v.slice(0,4) + '-' + v.slice(4);
+      if (v.length > 7) v = v.slice(0,7) + '-' + v.slice(7);
+      this.value = v;
+      updatePreview();
+    });
+  });
+}
+
+// ── 날짜 초기화 (오늘 기준) ──────────────────────────────────────
+function initDates() {
+  const today = new Date();
+  const fmt = d => d.toISOString().slice(0, 10);
+  const addMonths = (d, n) => { const r = new Date(d); r.setMonth(r.getMonth() + n); return r; };
+  const addDays   = (d, n) => { const r = new Date(d); r.setDate(r.getDate() + n); return r; };
+
+  const todayStr = fmt(today);
+  const plus15d  = fmt(addDays(today, 15));
+  const plus12m  = fmt(addMonths(today, 12));
+  const tmrw     = fmt(addDays(today, 1));
+
+  document.getElementById('f-date').value       = todayStr;  // 인보이스 날짜
+
+  document.getElementById('c-start').value      = todayStr;  // cicilan 시작
+  document.getElementById('c-end').value        = plus12m;   // cicilan 종료
+
+  document.getElementById('d-dp-date').value    = todayStr;  // DP 날짜
+  document.getElementById('d-rem-date').value   = plus15d;   // 잔금 날짜
+  document.getElementById('d-end').value        = plus12m;   // 종료
+
+  document.getElementById('dl-dp-date').value   = todayStr;  // DP+Lump DP 날짜
+  document.getElementById('dl-lump-date').value = plus15d;   // 일시불 날짜
+  document.getElementById('dl-end').value       = plus12m;   // 종료
+
+  document.getElementById('fp-date').value      = todayStr;  // Full 결제일
+  document.getElementById('fp-start').value     = tmrw;      // 서비스 시작
+  document.getElementById('fp-end').value       = plus12m;   // 서비스 종료
+}
+
+initDates();
+setupDateInputs();
 updatePreview();
 </script>
 </body>
