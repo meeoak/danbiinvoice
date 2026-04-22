@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>WINK Invoice Generator</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js"></script>
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
   body{font-family:'Segoe UI',sans-serif;background:#f0ede8;min-height:100vh;padding:2rem 1rem;color:#222;}
@@ -37,6 +38,8 @@
   .date-wrap{position:relative;}
   .date-wrap::after{content:"📅";position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:12px;pointer-events:none;opacity:0.45;}
   .date-wrap input{padding-right:28px !important;}
+  .date-wrap input[type="date"]::after{display:none;}
+  .date-wrap:has(input[type="date"])::after{display:none;}
 
   /* Invoice preview */
   .inv-wrap{background:#f8f8f8;border-radius:10px;padding:10px;}
@@ -87,6 +90,16 @@
   .pay-methods{background:#f9f9f9;border:0.5px solid #eee;border-radius:4px;padding:8px 10px;margin:8px 0;font-size:8px;}
   .badge-dplump{background:#ede9fe;color:#6d28d9;}
 </style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.css">
+<style>
+  /* Flatpickr 커스터마이징 */
+  .flatpickr-months .flatpickr-month { background:#e05a2b; }
+  .flatpickr-current-month .flatpickr-monthDropdown-months { background:#e05a2b; }
+  .flatpickr-weekday { color:#e05a2b !important; }
+  .flatpickr-day.selected, .flatpickr-day.selected:hover { background:#e05a2b; border-color:#e05a2b; }
+  .flatpickr-day:hover { background:#fdeee8; }
+  .flatpickr-calendar { font-family:'Segoe UI',sans-serif; font-size:13px; }
+</style>
 </head>
 <body>
 
@@ -133,7 +146,7 @@
     <div class="row2">
       <div class="field">
         <label>Tanggal Invoice</label>
-        <div class="date-wrap"><input type="text" lang="id" placeholder="YYYY-MM-DD" maxlength="10" inputmode="numeric" id="f-date" value=""></div>
+        <div class="date-wrap"><input type="text" id="f-date" placeholder="Pilih tanggal..." readonly style="width:100%;padding:7px 10px;font-size:0.82rem;border:1px solid #ddd;border-radius:7px;background:#fafafa;color:#222;font-family:inherit;cursor:pointer;"></div>
       </div>
       <div class="field">
         <label>Nama Produk / Paket</label>
@@ -144,14 +157,17 @@
       <div class="field">
         <label>Nomor Invoice</label>
         <div style="display:flex;gap:5px;align-items:center;">
-          <input type="text" id="f-invoice-no" placeholder="INV/2025/07/001" value="" style="flex:1;">
+          <input type="text" id="f-invoice-no" placeholder="INV202507001" value="" style="flex:1;">
           <button onclick="autoInvoiceNo()" title="Auto-generate invoice number" style="padding:6px 9px;background:#e05a2b;color:#fff;border:none;border-radius:7px;font-size:0.72rem;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;">⚡ Auto</button>
         </div>
         <div id="inv-no-hint" style="font-size:0.67rem;color:#bbb;margin-top:3px;">Klik ⚡ Auto untuk nomor otomatis, atau isi manual</div>
       </div>
       <div class="field">
         <label>Batas Waktu Pembayaran (Harap bayar maksimal)</label>
-        <div class="date-wrap"><input type="text" lang="id" placeholder="YYYY-MM-DD" maxlength="10" inputmode="numeric" id="f-deadline" value=""></div>
+        <div class="date-wrap">
+          <input type="text" id="f-deadline" placeholder="Pilih tanggal..." readonly
+            style="width:100%;padding:7px 10px;font-size:0.82rem;border:1px solid #ddd;border-radius:7px;background:#fafafa;color:#222;font-family:inherit;cursor:pointer;">
+        </div>
       </div>
     </div>
     </div>
@@ -942,6 +958,32 @@ function generatePDF() {
   doc.save(`WINK_Invoice_${typeLabel}_${name.replace(/\s+/g,'_')}_${date}.pdf`);
 }
 
+// ── Flatpickr 달력 초기화 (인니어) ──────────────────────────────
+const idLocale = {
+  weekdays: {
+    shorthand: ['Min','Sen','Sel','Rab','Kam','Jum','Sab'],
+    longhand:  ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu']
+  },
+  months: {
+    shorthand: ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'],
+    longhand:  ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember']
+  },
+  firstDayOfWeek: 1,
+  rangeSeparator: ' s/d ',
+};
+
+function makePicker(selector, onChange) {
+  return flatpickr(selector, {
+    locale: idLocale,
+    dateFormat: 'Y-m-d',
+    altInput: true,
+    altFormat: 'j F Y',
+    allowInput: false,
+    disableMobile: true,
+    onChange: onChange
+  });
+}
+
 // ── 자동 인보이스 번호 생성 ──────────────────────────────────────
 let invSeq = 0;
 
@@ -953,7 +995,7 @@ function autoInvoiceNo() {
   const yyyy = d.getFullYear();
   const mm   = String(d.getMonth() + 1).padStart(2, '0');
   const seqStr = String(invSeq).padStart(3, '0');
-  const invoiceNo = `INV/${yyyy}/${mm}/${seqStr}`;
+  const invoiceNo = `INV${yyyy}${mm}${seqStr}`;
 
   const el = document.getElementById('f-invoice-no');
   el.value = invoiceNo;
@@ -999,24 +1041,32 @@ function initDates() {
   const plus12m  = fmt(addMonths(today, 12));
   const tmrw     = fmt(addDays(today, 1));
 
-  document.getElementById('f-date').value       = todayStr;  // 인보이스 날짜
+  // f-date는 Flatpickr로 초기화
+  if (window._fpDate) window._fpDate.setDate(todayStr, true);
 
-  document.getElementById('c-start').value      = todayStr;  // cicilan 시작
-  document.getElementById('c-end').value        = plus12m;   // cicilan 종료
+  document.getElementById('c-start').value      = todayStr;
+  document.getElementById('c-end').value        = plus12m;
 
-  document.getElementById('d-dp-date').value    = todayStr;  // DP 날짜
-  document.getElementById('d-rem-date').value   = plus15d;   // 잔금 날짜
-  document.getElementById('d-end').value        = plus12m;   // 종료
+  document.getElementById('d-dp-date').value    = todayStr;
+  document.getElementById('d-rem-date').value   = plus15d;
+  document.getElementById('d-end').value        = plus12m;
 
-  document.getElementById('dl-dp-date').value   = todayStr;  // DP+Lump DP 날짜
-  document.getElementById('dl-lump-date').value = plus15d;   // 일시불 날짜
-  document.getElementById('dl-end').value       = plus12m;   // 종료
+  document.getElementById('dl-dp-date').value   = todayStr;
+  document.getElementById('dl-lump-date').value = plus15d;
+  document.getElementById('dl-end').value       = plus12m;
 
-  document.getElementById('fp-date').value      = todayStr;  // Full 결제일
-  document.getElementById('fp-start').value     = tmrw;      // 서비스 시작
-  document.getElementById('fp-end').value       = plus12m;   // 서비스 종료
+  document.getElementById('fp-date').value      = todayStr;
+  document.getElementById('fp-start').value     = tmrw;
+  document.getElementById('fp-end').value       = plus12m;
 }
 
+// Flatpickr 인스턴스를 전역 변수에 저장해서 initDates에서 접근 가능하게
+function initDeadlinePicker2() {
+  window._fpDate = makePicker('#f-date', () => updatePreview());
+  makePicker('#f-deadline', () => updatePreview());
+}
+
+initDeadlinePicker2();
 initDates();
 setupDateInputs();
 updatePreview();
