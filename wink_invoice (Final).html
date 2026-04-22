@@ -313,7 +313,19 @@
     <input type="hidden" id="dl-note" value="">
     <input type="hidden" id="fp-discount" value="0">
     <input type="hidden" id="fp-note" value="">
+
+    <hr class="divider">
+    <div class="field">
+      <label>Diterbitkan Oleh (Nama Sales / Admin)</label>
+      <input type="text" id="f-issued-by" placeholder="Contoh: Siti Rahayu" value="">
+    </div>
+
     <button class="btn-pdf" onclick="generatePDF()">⬇ Unduh PDF</button>
+    <button class="btn-pdf" onclick="saveToSheet()" style="margin-top:6px;background:#1a7f4b;">📊 Catat ke Google Sheet</button>
+    <div style="margin-top:8px;padding:8px 10px;background:#f9f9f9;border-radius:7px;border:1px solid #eee;">
+      <label style="font-size:0.68rem;color:#aaa;font-weight:600;">Google Apps Script URL</label>
+      <input type="text" id="apps-script-url" style="width:100%;padding:5px 7px;font-size:0.7rem;border:1px solid #ddd;border-radius:6px;background:#fff;color:#555;font-family:inherit;margin-top:4px;" value="https://script.google.com/macros/s/AKfycbyAGQfM7-p42xV7g-lf1zDW7RmFcxpt43PLnOmxW_zWUZ7oh_QepxedKBmixMAVSDiVPQ/exec">
+    </div>
   </div>
 
   <!-- PREVIEW -->
@@ -986,6 +998,95 @@ function makePicker(selector, onChange) {
   });
 }
 
+// ── Google Sheet 기록 ──────────────────────────────────────────
+async function saveToSheet() {
+  const url = document.getElementById('apps-script-url').value.trim();
+  if (!url) {
+    alert('❗ Google Apps Script URL을 먼저 입력해주세요.');
+    return;
+  }
+
+  const g = id => (document.getElementById(id) || {}).value || '';
+
+  const name      = g('f-name');
+  const child     = g('f-child');
+  const date      = g('f-date');
+  const product   = g('f-product');
+  const invoiceNo = g('f-invoice-no');
+  const deadline  = g('f-deadline');
+
+  let paymentType='', firstAmount='', monthlyAmount='', totalMonths='',
+      startDate='', endDate='', totalAmount='', notes='';
+
+  if (currentType === 'cicilan') {
+    paymentType   = 'Cicilan Bulanan';
+    firstAmount   = g('c-first');
+    monthlyAmount = g('c-monthly');
+    totalMonths   = g('c-months');
+    startDate     = g('c-start');
+    endDate       = g('c-end');
+    totalAmount   = (parseFloat(firstAmount)||0) + (parseFloat(monthlyAmount)||0) * ((parseInt(totalMonths)||1)-1);
+  } else if (currentType === 'dp') {
+    paymentType   = 'DP + Cicilan';
+    firstAmount   = g('d-dp');
+    monthlyAmount = g('d-monthly');
+    totalMonths   = g('d-months');
+    startDate     = g('d-dp-date');
+    endDate       = g('d-end');
+    const rem     = parseFloat(g('d-rem'))||0;
+    totalAmount   = (parseFloat(firstAmount)||0) + rem + (parseFloat(monthlyAmount)||0) * ((parseInt(totalMonths)||1) - (parseInt(g('d-startm'))||2) + 1);
+  } else if (currentType === 'dplump') {
+    paymentType   = 'DP + Lunas Sekaligus';
+    firstAmount   = g('dl-dp');
+    monthlyAmount = g('dl-lump');
+    totalMonths   = g('dl-months');
+    startDate     = g('dl-dp-date');
+    endDate       = g('dl-end');
+    totalAmount   = (parseFloat(firstAmount)||0) + (parseFloat(monthlyAmount)||0);
+  } else {
+    paymentType   = 'Full Payment';
+    firstAmount   = g('fp-total');
+    monthlyAmount = '-';
+    totalMonths   = g('fp-months');
+    startDate     = g('fp-start');
+    endDate       = g('fp-end');
+    totalAmount   = firstAmount;
+  }
+
+  const payload = {
+    invoiceNo, invoiceDate: date, deadline,
+    customerName: name, childName: child,
+    product, paymentType,
+    firstAmount, monthlyAmount, totalMonths,
+    startDate, endDate,
+    totalAmount: String(totalAmount),
+    issuedBy: g('f-issued-by'),
+    closingStatus: 'Belum Closing',
+    notes: ''
+  };
+
+  const btn = document.querySelector('button[onclick="saveToSheet()"]');
+  const origText = btn.textContent;
+  try {
+    btn.textContent = '⏳ Menyimpan...';
+    btn.disabled = true;
+
+    await fetch(url, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    btn.textContent = '✅ Tersimpan!';
+    setTimeout(() => { btn.textContent = origText; btn.disabled = false; }, 2500);
+  } catch (err) {
+    alert('❌ Gagal: ' + err.message);
+    btn.textContent = origText;
+    btn.disabled = false;
+  }
+}
+
 // ── 자동 인보이스 번호 생성 ──────────────────────────────────────
 let invSeq = 0;
 
@@ -1009,7 +1110,7 @@ function autoInvoiceNo() {
 }
 
 // Event listeners - all fields
-const allFields = ['f-name','f-child','f-date','f-deadline','f-invoice-no','f-product','f-signer','f-position',
+const allFields = ['f-name','f-child','f-date','f-deadline','f-invoice-no','f-product','f-issued-by','f-signer','f-position',
   'c-first','c-start','c-monthly','c-months','c-end',
   'd-dp','d-dp-date','d-rem','d-rem-date','d-monthly','d-startm','d-months','d-end',
   'dl-dp','dl-dp-date','dl-lump','dl-lump-date','dl-months','dl-end','fp-total','fp-date','fp-months','fp-start','fp-end'];
